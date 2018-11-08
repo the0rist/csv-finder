@@ -28,7 +28,7 @@ class ClientSearch
      * @param float $amount
      * @return void
      */
-    public function printByAmount(float $amount): void
+    public function printByAmount(float $amount)
     {
         $totalMatches = 0;
         foreach ($this->repository->getRows() as $line) {
