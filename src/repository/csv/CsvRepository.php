@@ -2,7 +2,6 @@
 
 namespace app\src\repository\csv;
 
-use app\src\repository\DataParserInterface;
 use app\src\repository\RepositoryInterface;
 
 /**
@@ -38,13 +37,15 @@ class CsvRepository implements RepositoryInterface
     {
         $handle = fopen($this->filename, 'r');
 
-        $headerLine = fgetcsv($handle);
+        fgetcsv($handle); // Skip the first line with headers
 
         while (!feof($handle)) {
             $currentLine = fgetcsv($handle);
-            $extractedData = $this->parser->parse($currentLine);
 
-            yield $extractedData;
+            if ($currentLine) {
+                yield $this->parser->parse($currentLine);
+            }
+
         }
 
         fclose($handle);
