@@ -11,5 +11,5 @@ if (!$amount) {
     throw new \Exception('Amount not set.');
 }
 
-$clientSearch = new ClientSearch(new CsvRepository('dataset.csv'));
+$clientSearch = new ClientSearch(new CsvRepository('simple_dataset.csv'));
 $clientSearch->printByAmount($amount);

@@ -16,6 +16,11 @@ class ClientSearch
     private $repository;
 
     /**
+     * @var array
+     */
+    private $data;
+
+    /**
      * ClientSearch constructor
      * @param RepositoryInterface $repository
      */
@@ -30,16 +35,37 @@ class ClientSearch
      */
     public function printByAmount(float $amount)
     {
-        $totalMatches = 0;
+        $this->prepareData();
+
+        foreach ($this->data as $key => $value) {
+            if (is_array($value)) {
+                $currentAmount = 0; // reset amount
+                foreach ($value as $element) {
+                    $currentAmount += (float)$element['amount'];
+                    if ($currentAmount >= $amount) {
+                        echo "{$key}, {$element['date']}" . PHP_EOL;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @return void
+     */
+    private function prepareData()
+    {
         foreach ($this->repository->getRows() as $line) {
-            if ($this->isValidData($line) && (float)$line['amount'] >= $amount) {
-                $totalMatches++;
-                echo "{$line['uid']} {$line['date']} {$line['amount']}" . PHP_EOL;
+            if ($this->isValidData($line)) {
+                $this->data[$line['uid']][] = [
+                    'date' => $line['date'],
+                    'amount' => $line['amount']
+                ];
             }
         }
 
-        echo '---' . PHP_EOL;
-        echo "Total matches: {$totalMatches}" . PHP_EOL;
+        $this->sortData();
     }
 
     /**
@@ -49,5 +75,31 @@ class ClientSearch
     private function isValidData(array $data): bool
     {
         return isset($data['uid'], $data['date'], $data['amount']);
+    }
+
+    /**
+     * @return void
+     */
+    private function sortData()
+    {
+        foreach ($this->data as $item) {
+            usort($item, [$this, 'compareByDate']);
+        }
+    }
+
+    /**
+     * @param array $element
+     * @param array $nextElement
+     * @return int
+     */
+    private function compareByDate(array $element, array $nextElement): int
+    {
+        if (strtotime($element['date']) < strtotime($nextElement['date'])) {
+            return 1;
+        } elseif (strtotime($element['date']) > strtotime($nextElement['date'])) {
+            return -1;
+        }
+
+        return 0;
     }
 }

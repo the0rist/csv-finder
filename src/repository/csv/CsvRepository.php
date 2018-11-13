@@ -35,19 +35,19 @@ class CsvRepository implements RepositoryInterface
      */
     public function getRows()
     {
-        $handle = fopen($this->filename, 'r');
+        try {
+            $handle = fopen($this->filename, 'r');
+            fgetcsv($handle); // Skip the first line with headers
 
-        fgetcsv($handle); // Skip the first line with headers
+            while (!feof($handle)) {
+                $currentLine = fgetcsv($handle);
 
-        while (!feof($handle)) {
-            $currentLine = fgetcsv($handle);
-
-            if ($currentLine) {
-                yield $this->parser->parse($currentLine);
+                if ($currentLine) {
+                    yield $this->parser->parse($currentLine);
+                }
             }
-
+        } finally {
+            fclose($handle);
         }
-
-        fclose($handle);
     }
 }
