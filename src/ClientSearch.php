@@ -94,12 +94,10 @@ class ClientSearch
      */
     private function compareByDate(array $element, array $nextElement): int
     {
-        if (strtotime($element['date']) < strtotime($nextElement['date'])) {
-            return 1;
-        } elseif (strtotime($element['date']) > strtotime($nextElement['date'])) {
-            return -1;
+        if ($element['date'] == $nextElement['date']) {
+            return 0;
         }
 
-        return 0;
+        return strtotime($nextElement['date']) - strtotime($nextElement['date']);
     }
 }
